@@ -36,7 +36,8 @@ blood_group_detection/
 The app loads the committed model from `models/final_model.keras` and the
 labels from `models/class_names.json`. Streamlit Cloud installs the required
 packages from `requirements.txt`; no secrets or environment variables are
-required.
+required. The repository includes `runtime.txt` to select Python 3.11,
+which is required by the pinned TensorFlow deployment dependency.
 
 ## 1. Get a Dataset
 
