@@ -21,8 +21,22 @@ blood_group_detection/
 ├── models/                      # saved trained models & class label map
 ├── outputs/                     # training curves, confusion matrix, report
 ├── requirements.txt
+├── app.py                      # Streamlit frontend
 └── README.md
 ```
+
+## Deploy on Streamlit Community Cloud
+
+1. Push this repository to GitHub.
+2. Open [share.streamlit.io](https://share.streamlit.io/) and sign in with GitHub.
+3. Select `ayushpaliwal1920/BloodGroup_image_recognization` and the `main` branch.
+4. Set the main file path to `app.py`.
+5. Click **Deploy**.
+
+The app loads the committed model from `models/final_model.keras` and the
+labels from `models/class_names.json`. Streamlit Cloud installs the required
+packages from `requirements.txt`; no secrets or environment variables are
+required.
 
 ## 1. Get a Dataset
 
