@@ -1,10 +1,13 @@
+# Blood Group Classification using Image Processing
+
 # Blood Group Classification using Image Processing (CNN)
 
 A machine learning project that predicts blood groups from images using a
 Convolutional Neural Network.
 
-Images are preprocessed (resized and contrast-enhanced) and fed into a deep
-CNN that learns to classify eight blood-group categories.
+Images are preprocessed (resized and contrast-enhanced) and classified into
+eight blood-group categories. The deployed app uses ONNX Runtime so it does
+not require TensorFlow on Streamlit Cloud.
 
 ## Project Structure
 
@@ -21,6 +24,7 @@ blood_group_detection/
 ├── models/                      # saved trained models & class label map
 ├── outputs/                     # training curves, confusion matrix, report
 ├── requirements.txt
+├── requirements-train.txt      # optional local TensorFlow training dependencies
 ├── app.py                      # Streamlit frontend
 └── README.md
 ```
@@ -33,21 +37,21 @@ blood_group_detection/
 4. Set the main file path to `app.py`.
 5. Click **Deploy**.
 
-The app loads the committed model from `models/final_model.keras` and the
-labels from `models/class_names.json`. Streamlit Cloud installs the required
-packages from `requirements.txt`; no secrets or environment variables are
-required. The repository includes `runtime.txt` to select Python 3.11,
-which is required by the pinned TensorFlow deployment dependency.
+The app loads the committed ONNX model from `models/final_model.onnx` and the
+labels from `models/class_names.json`. Streamlit Cloud installs the lightweight
+inference dependencies from `requirements.txt`; no secrets or environment
+variables are required. TensorFlow is kept separate in `requirements-train.txt`
+for local retraining and is not installed by Streamlit Cloud.
 
 ## 1. Get a Dataset
 
 The loader expects `train/` and `val/` directories containing class folders
 such as `A Positive`, `A Negative`, `AB Positive`, and `O Negative`.
 
-## 2. Install Dependencies
+## 2. Install Local Training Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-train.txt
 ```
 
 ## 3. Train the Model
@@ -58,11 +62,10 @@ python src/train.py --data_dir dataset --model_type transfer --epochs 20 --batch
 
 This will:
 
-- Load and preprocess blood-group images (grayscale, resize to 128x128, CLAHE contrast enhancement)
-- Use 15% of `train/` for validation and the supplied `val/` split for testing
+- Load and preprocess blood-group images (RGB, resize to 128x128, CLAHE contrast enhancement)
 - Train a pretrained MobileNetV2 model with balanced class weighting
 - Apply early stopping and learning-rate reduction on plateau
-- Save the best model to `models/final_model.keras`
+- Save the Keras model to `models/final_model.keras` and export `models/final_model.onnx` for deployment
 - Save `models/class_names.json` (label index → blood-group mapping)
 - Save `outputs/training_curves.png`, `outputs/confusion_matrix.png`, and `outputs/classification_report.txt`
 

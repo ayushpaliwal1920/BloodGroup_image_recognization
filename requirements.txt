@@ -4,4 +4,4 @@ scikit-learn==1.5.2
 Pillow==10.4.0
 pandas==2.2.3
 streamlit==1.63.0
-tensorflow==2.18.0
+onnxruntime==1.29.0

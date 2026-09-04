@@ -24,7 +24,6 @@ from pathlib import Path
 import cv2
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical
 
 # ----------------------------------------------------------------------
 # Config
@@ -137,6 +136,8 @@ def prepare_data(
 
     Returns a dict with X_train, y_train, X_val, y_val, X_test, y_test, class_names
     """
+    from tensorflow.keras.utils import to_categorical
+
     print(f"Loading dataset from: {dataset_dir}")
     root = Path(dataset_dir)
     train_dir = root / "train"

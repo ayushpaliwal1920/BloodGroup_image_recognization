@@ -2,15 +2,15 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import onnxruntime as ort
 import pandas as pd
 import streamlit as st
-from tensorflow.keras.models import load_model
 
 from src.data_preprocessing import IMG_SIZE, preprocess_fingerprint
 
 
 ROOT = Path(__file__).resolve().parent
-MODEL_PATH = ROOT / "models" / "final_model.keras"
+MODEL_PATH = ROOT / "models" / "final_model.onnx"
 LABELS_PATH = ROOT / "models" / "class_names.json"
 
 st.set_page_config(
@@ -64,7 +64,7 @@ st.markdown(
 
 @st.cache_resource
 def get_model():
-    return load_model(MODEL_PATH)
+    return ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])
 
 
 @st.cache_data
@@ -78,14 +78,16 @@ def get_class_names():
 def predict_image(image_bytes):
     image_array = np.frombuffer(image_bytes, dtype=np.uint8)
     model = get_model()
-    channels = model.input_shape[-1]
+    model_input = model.get_inputs()[0]
+    channels = int(model_input.shape[-1])
     read_mode = cv2.IMREAD_COLOR if channels == 3 else cv2.IMREAD_GRAYSCALE
     image = cv2.imdecode(image_array, read_mode)
     if image is None:
         raise ValueError("The uploaded file is not a readable image.")
 
     processed = preprocess_fingerprint(image, IMG_SIZE, channels=channels)
-    probabilities = model.predict(np.expand_dims(processed, axis=0), verbose=0)[0]
+    prediction = model.run(None, {model_input.name: np.expand_dims(processed, axis=0)})[0]
+    probabilities = prediction[0]
     class_names = get_class_names()
     ranked = sorted(
         zip(class_names, probabilities), key=lambda item: item[1], reverse=True
@@ -99,7 +101,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.markdown('<div class="sidebar-section">System</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sidebar-row"><span class="sidebar-label">Model</span><span class="sidebar-value">MobileNetV2 transfer</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-row"><span class="sidebar-label">Model</span><span class="sidebar-value">MobileNetV2 · ONNX</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-row"><span class="sidebar-label">Input format</span><span class="sidebar-value">RGB · 128 × 128 px</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-row"><span class="sidebar-label">Holdout accuracy</span><span class="sidebar-value">80.95%</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-section">Blood groups</div>', unsafe_allow_html=True)
