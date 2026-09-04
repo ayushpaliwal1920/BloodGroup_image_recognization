@@ -1,5 +1,3 @@
-# Blood Group Classification using Image Processing
-
 # Blood Group Classification using Image Processing (CNN)
 
 A machine learning project that predicts blood groups from images using a
